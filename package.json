@@ -9,12 +9,16 @@
     },
     "devDependencies": {
         "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-        "dotenv": "^16.4.5",
+        "dotenv": "^16.6.1",
         "hardhat": "^2.22.10"
     },
     "dependencies": {
         "@openzeppelin/contracts": "^5.6.1",
         "@openzeppelin/contracts-upgradeable": "^5.4.0",
-        "@openzeppelin/hardhat-upgrades": "^3.9.1"
+        "@openzeppelin/hardhat-upgrades": "^3.9.1",
+        "ethers": "^6.16.0",
+        "express": "^5.2.1",
+        "jsonwebtoken": "^9.0.3",
+        "siwe": "^3.0.0"
     }
 }
