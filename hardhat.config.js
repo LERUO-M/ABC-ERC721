@@ -3,7 +3,16 @@ require("@openzeppelin/hardhat-upgrades");
 require("dotenv").config();
 
 module.exports = {
-    solidity: "0.8.28",
+    solidity: {
+        version: "0.8.28",
+        settings: {
+            evmVersion: "cancun",
+            optimizer: {
+                enabled: true,
+                runs: 200,
+            },
+        },
+    },
     networks: {
         hardhat: {},
         sepolia: {
