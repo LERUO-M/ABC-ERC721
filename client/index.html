@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABC NFT Login</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    }
+    .logo { font-size: 2.8rem; margin-bottom: 8px; }
+    h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
+    .subtitle { color: rgba(255,255,255,0.55); font-size: 0.9rem; margin-bottom: 36px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 14px 24px; border-radius: 12px;
+      border: none; cursor: pointer; font-size: 1rem; font-weight: 600;
+      transition: all 0.2s ease; margin-top: 12px;
+    }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-connect {
+      background: linear-gradient(135deg, #f6851b, #e2761b);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(246,133,27,0.4);
+    }
+    .btn-connect:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(246,133,27,0.55);
+    }
+    .btn-verify {
+      background: linear-gradient(135deg, #6c63ff, #a855f7);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+    }
+    .btn-verify:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(108,99,255,0.55);
+    }
+    .wallet-badge {
+      background: rgba(255,255,255,0.1); border-radius: 10px;
+      padding: 10px 16px; margin-bottom: 8px; font-size: 0.85rem;
+      color: rgba(255,255,255,0.8); word-break: break-all;
+    }
+    .wallet-badge span { color: #a5f3a0; font-weight: 700; }
+    .success-icon { font-size: 4rem; margin-bottom: 16px; animation: pop 0.4s ease; }
+    .success-title { font-size: 1.5rem; font-weight: 700; color: #a5f3a0; margin-bottom: 8px; }
+    .success-msg { color: rgba(255,255,255,0.65); font-size: 0.95rem; }
+    .error-box {
+      background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4);
+      border-radius: 10px; padding: 12px 16px; margin-top: 16px;
+      font-size: 0.88rem; color: #fca5a5;
+    }
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .step-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 28px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); transition: background 0.3s;
+    }
+    .dot.active { background: #a855f7; }
+    .dot.done { background: #a5f3a0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pop { 0%{transform:scale(0.5);opacity:0} 80%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .fade-in { animation: fadeIn 0.35s ease forwards; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+    const SERVER = 'http://localhost:3000';
+
+    function shortAddr(addr) {
+      return addr.slice(0, 6) + '...' + addr.slice(-4);
+    }
+
+    function StepDots({ step }) {
+      return (
+        <div className="step-dots">
+          {[0,1,2].map(i => (
+            <div key={i} className={`dot ${i < step ? 'done' : i === step ? 'active' : ''}`} />
+          ))}
+        </div>
+      );
+    }
+
+    function App() {
+      const [step, setStep]           = useState(0); // 0=idle, 1=connected, 2=success
+      const [wallet, setWallet]       = useState('');
+      const [loading, setLoading]     = useState(false);
+      const [error, setError]         = useState('');
+      const [message, setMessage]     = useState('');
+
+      async function connectWallet() {
+        setError('');
+        if (!window.ethereum) {
+          setError('MetaMask is not installed. Please install it and try again.');
+          return;
+        }
+        try {
+          setLoading(true);
+          const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          setWallet(account);
+          setStep(1);
+        } catch (e) {
+          setError(e.message || 'Connection cancelled.');
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      async function verifyNFT() {
+        setError('');
+        try {
+          setLoading(true);
+
+          // Step 1 – fetch nonce + human-readable message from backend
+          const nonceRes = await fetch(`${SERVER}/nonce/${wallet}`);
+          const { message } = await nonceRes.json();
+
+          // Step 2 – ask MetaMask to sign the readable message
+          const signature = await window.ethereum.request({
+            method: 'personal_sign',
+            params: [message, wallet],
+          });
+
+          // Step 3 – send to backend for verification
+          const verifyRes = await fetch(`${SERVER}/verify-nft`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ walletAddress: wallet, signature }),
+          });
+          const data = await verifyRes.json();
+
+          if (data.authorized) {
+            setMessage(data.message || 'Access Granted');
+            setStep(2);
+          } else {
+            setError(data.message || 'No NFT found in this wallet.');
+          }
+        } catch (e) {
+          setError(e.message || 'Verification failed.');
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      return (
+        <div className="card">
+          <div className="logo">🔐</div>
+          <h1>ABC NFT Login</h1>
+          <p className="subtitle">Prove ownership of a LeftNFT to gain access</p>
+
+          <StepDots step={step} />
+
+          {step === 0 && (
+            <div className="fade-in">
+              <button className="btn btn-connect" onClick={connectWallet} disabled={loading}>
+                {loading ? <span className="spinner"/> : '🦊'}
+                {loading ? 'Connecting…' : 'Connect Wallet'}
+              </button>
+            </div>
+          )}
+
+          {step === 1 && (
+            <div className="fade-in">
+              <div className="wallet-badge">
+                Connected: <span>{shortAddr(wallet)}</span>
+              </div>
+              <button className="btn btn-verify" onClick={verifyNFT} disabled={loading}>
+                {loading ? <span className="spinner"/> : '🎫'}
+                {loading ? 'Verifying…' : 'Verify NFT Ownership'}
+              </button>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="fade-in">
+              <div className="success-icon">✅</div>
+              <div className="success-title">{message}</div>
+              <div className="success-msg">
+                NFT ownership confirmed for<br />
+                <strong>{shortAddr(wallet)}</strong>
+              </div>
+            </div>
+          )}
+
+          {error && <div className="error-box">⚠️ {error}</div>}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
