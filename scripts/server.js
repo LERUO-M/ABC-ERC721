@@ -3,9 +3,9 @@ const express = require('express');
 const { ethers } = require('ethers'); 
 const app = express();
 
-// Add CORS if your React app (port 5173) is talking to this server (port 3000)
-// const cors = require('cors');
-// app.use(cors());
+// Local development, this is fine, but in production you should set up proper CORS policies
+const cors = require('cors');
+app.use(cors());
 
 app.use(express.json());
 
@@ -40,7 +40,7 @@ app.post('/verify-nft', async (req, res) => {
     
     if (balance > 0n) { // Note: ethers v6 returns BigInts, so we use > 0n
       // User owns the NFT and proved they own the wallet
-      res.json({ authorized: true, message: "Access Granted" });
+      res.status(200).json({ authorized: true, message: "Access Granted" });
     } else {
       res.status(403).json({ authorized: false, message: "No NFT found. Join the club first." });
     }
@@ -50,4 +50,4 @@ app.post('/verify-nft', async (req, res) => {
   }
 });
 
-app.listen(5173, () => console.log("Server running on http://localhost:5173"));
+app.listen(3000, () => console.log("Server running on http://localhost:3000"));
