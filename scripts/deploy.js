@@ -3,14 +3,14 @@ const { ethers } = require("hardhat");
 async function main() {
     const [deployer] = await ethers.getSigners();
 
-    console.log("Deploying LeftNFT with account:", deployer.address);
+    console.log("Deploying LeftyNFT with account:", deployer.address);
 
-    const LNFTFactory = await ethers.getContractFactory("LeftNFT");
-    const lnft = await LNFTFactory.deploy();
+    const LNFTFactory = await ethers.getContractFactory("LeftyNFT");
+    const lnfty = await LNFTFactory.deploy();
 
-    await lnft.waitForDeployment();
+    await lnfty.waitForDeployment();
 
-    console.log("Contract deployed at address: ", lnft.target);
+    console.log("Contract deployed at address: ", lnfty.target);
 }
 
 main().catch((error) => {
