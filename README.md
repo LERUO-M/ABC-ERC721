@@ -1,80 +1,187 @@
-# ABC ERC-721 NFT Login
+# ABC ERC-721 NFT Login - "The Inner Circle"
 
-A wallet-gated login page built with React, Express, and ERC-721. Users connect their MetaMask wallet, sign a human-readable challenge message, and the backend verifies they hold a **LeftNFT** on Sepolia before granting access.
+A premium wallet-gated login experience built with **React**, **Express**, **ethers.js**, and **ERC-721**. Users connect their MetaMask wallet, cryptographically sign a challenge message, and the backend verifies they hold a **LeftyNFT** on Sepolia testnet before granting access to exclusive content.
 
-## Why ERC-721?
+## 🎯 How It Works
 
-- ERC-721 = a unique ID card
-- One person owns it
-- It proves who you are
-- You either have it or you don't
+1. User clicks **Connect Wallet & Sign In**
+2. MetaMask prompts them to sign a human-readable message (proves wallet ownership)
+3. Backend verifies the signature and checks NFT balance on-chain
+4. ✅ If they hold an NFT → **Access Granted** screen with exclusive content
+5. ❌ If no NFT → **Access Denied** screen with vault animation + call-to-action
 
-## Project Structure
+## 🏗️ Project Structure
 
 ```
-contracts/       - LeftNFT ERC-721 smart contract
-scripts/
-  deploy.js      - Hardhat deployment script
-  server.js      - Express API (nonce + NFT verification)
-client/
-  index.html     - React login frontend
+ABC-ERC721/
+├── scripts/
+│   ├── server.js              # Express backend (signature verification + NFT check)
+│   ├── deploy.js              # Hardhat deployment script
+│   └── test-login.js          # Testing utilities
+├── frontend-loveable/         # Production frontend (Vite + React + TypeScript)
+│   ├── src/
+│   │   ├── components/
+│   │   │   └── NftGate.tsx    # Main auth component (with animations)
+│   │   ├── lib/
+│   │   ├── routes/
+│   │   └── styles.css
+│   └── vite.config.ts
+├── nft_access/                # Alternative frontend (simpler Vite setup)
+│   ├── src/
+│   │   └── App.jsx            # Basic login component
+│   └── vite.config.js
+└── README.md (this file)
 ```
 
-## Prerequisites
+## 🔐 Smart Contract
 
-- [Node.js](https://nodejs.org) v18+
-- [MetaMask](https://metamask.io) browser extension
+- **Name:** LeftyNFT (LNFT)
+- **Network:** Sepolia Testnet
+- **Address:** `0xd614eEC2C666c412484cf3a31Ea3D8e57186624D`
+- **Standard:** ERC-721 (NFT verification via `balanceOf`)
+
+## 📋 Prerequisites
+
+- **Node.js** v18+
+- **MetaMask** browser extension
 - A `.env` file in the project root with:
 
 ```
-SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_KEY
+SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_INFURA_KEY
 ```
 
-## Steps to Run
+## 🚀 Quick Start
 
-### 1. Install dependencies
+### Step 1: Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Start the backend server
+This installs packages for both the backend and frontend.
+
+### Step 2: Start the Backend Server
 
 ```bash
 node scripts/server.js
 ```
 
-The API will be available at `http://localhost:3000`.
+The API will be available at `http://localhost:3000`
 
-### 3. Serve the frontend
+You should see: `Server running on http://localhost:3000`
 
-Open a second terminal and run:
+### Step 3: Start the Frontend
+
+Open a **second terminal** and run:
+
+#### Option A: Premium Frontend (Recommended - with animations)
 
 ```bash
-npx serve client
+cd frontend-loveable
+npm install
+npm run dev
 ```
 
-Then open the URL printed in the terminal (e.g. `http://localhost:3001`) in your browser.
+#### Option B: Simple Frontend
 
-> **Note:** MetaMask requires the page to be served over `http://` - opening `client/index.html` directly as a `file://` URL will not work.
+```bash
+cd nft_access
+npm install
+npm run dev
+```
 
-### 4. Use the app
+Both will print a local URL (usually `http://localhost:5173`) — open it in your browser.
 
-1. Click **Connect Wallet** and approve the MetaMask prompt.
-2. Click **Verify NFT Ownership** - MetaMask will show a human-readable message to sign. Review it and confirm.
-3. If your wallet holds a LeftNFT on Sepolia, you will see the **Access Granted** success screen.
+### Step 4: Test the Login Flow
 
-## Contract
+1. Click **Connect Wallet & Sign In** / **Connect Wallet**
+2. MetaMask will display the message to sign:
+3. Review and confirm the signature
+4. If your wallet holds a LeftNFT → **Access Granted** ✅
+5. If not → **Access Denied** + vault animation 🔐
 
-- **Name:** LeftNFT (LNFT)
-- **Network:** Sepolia testnet
-- **Address:** `0xD77E08C4D7F220c2849123aBf3803379041F164c`
+## 🔄 Authentication Flow
 
-## How Verification Works
+### Frontend (React)
 
-1. Frontend requests a one-time nonce from `GET /nonce/:address`. The server returns both the raw nonce and a pre-built human-readable message.
-2. MetaMask displays the readable message to the user, who signs it with their private key (`personal_sign`). The message includes the wallet address, the nonce, and a timestamp so users can see exactly what they are agreeing to.
-3. Frontend posts the signature to `POST /verify-nft`.
-4. Backend rebuilds the same message from the stored nonce and recovers the signer using `ethers.verifyMessage`. The recovered address must match the claimed wallet.
-5. The nonce is deleted after use to prevent replay attacks.
-6. Backend calls `balanceOf` on the NFT contract - access is granted only if the balance is greater than zero.
+```
+User clicks button
+  ↓
+MetaMask prompts to sign message
+  ↓
+Frontend sends (address, signature) to backend
+  ↓
+Display loading state...
+```
+
+### Backend (Express)
+
+```
+POST /verify-nft receives (address, signature)
+  ↓
+Recover signer from signature using ethers.verifyMessage()
+  ↓
+Verify recovered address matches claimed address
+  ↓
+Query contract: balanceOf(address)
+  ↓
+If balance > 0 → 200 OK { authorized: true }
+If balance = 0 → 403 { authorized: false }
+```
+
+## 🎨 Frontend Features
+
+### Production Frontend (`frontend-loveable`)
+- **Smooth animations** with Framer Motion
+- **Glassmorphism** design with modern UI components
+- **Three distinct states:**
+  - 💎 **Idle**: Login screen with floating particles
+  - ⏳ **Loading**: Animated spinner + verifying state
+  - ✅ **Granted**: Welcome screen with exclusive content
+  - 🔐 **Denied**: Access denied with vault door animation + CTA
+
+### Simple Frontend (`nft_access`)
+- Lightweight, React
+- No animations—focus on core functionality
+- Great for testing or customization
+
+## 🛠️ Development Commands
+
+```bash
+# Install all dependencies
+npm install
+
+# Start backend
+node scripts/server.js
+
+# Start frontend (production)
+cd frontend-loveable && npm run dev
+
+# Start frontend (simple)
+cd nft_access && npm run dev
+
+# Build frontend for production
+cd frontend-loveable && npm run build
+```
+
+## 📦 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React + TypeScript + Vite |
+| **Animation** | Framer Motion |
+| **Web3** | ethers.js v6 |
+| **Backend** | Express.js + Node.js |
+| **Blockchain** | Ethereum (Sepolia Testnet) |
+| **Smart Contract** | Solidity (ERC-721) |
+
+## 🔍 How Signature Verification Works
+
+1. **Frontend** requests user to sign a fixed message via MetaMask (`personal_sign`)
+2. **User** reviews the readable message and confirms
+3. **Frontend** sends the signature + wallet address to backend
+4. **Backend** uses `ethers.verifyMessage(message, signature)` to recover the signer
+5. If recovered address = claimed address → ✅ Proven wallet ownership
+6. **Contract query** checks if `balanceOf(address) > 0` → Access decision
+
+This prevents replay attacks and proves the user controls the private key.
