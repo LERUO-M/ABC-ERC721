@@ -2,3 +2,5 @@ node_modules/
 cache/
 artifacts/
 .env
+frontend-loveable/src/components/
+frontend-loveable/src/hooks/
