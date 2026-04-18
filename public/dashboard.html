@@ -4,11 +4,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard — Members Club</title>
+  <title>LM. Dashboard — LifeClub</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Josefin+Sans:wght@100;300;400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
@@ -16,316 +16,270 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --black:   #080808;
-      --deep:    #0f0f0f;
-      --gold:    #c9a84c;
-      --gold-dim:#8a6e2f;
-      --white:   #f0ece4;
-      --muted:   #4a4642;
-      --border:  rgba(201,168,76,.12);
+      --cream:   #F0ECE4;
+      --cream-d: #E4DFD5;
+      --ink:     #111111;
+      --ink-mid: #666666;
+      --ink-dim: #AAAAAA;
+      --border:  rgba(0,0,0,0.08);
+      --grid-c:  rgba(0,0,0,0.055);
     }
 
     html, body {
-      height: 100%;
-      background: var(--black);
-      color: var(--white);
-      font-family: 'Josefin Sans', sans-serif;
+      min-height: 100%;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
       cursor: none;
-      overflow-x: hidden;
     }
 
     /* ── Cursor ── */
     #cursor {
       position: fixed;
-      width: 8px; height: 8px;
+      width: 10px; height: 10px;
       border-radius: 50%;
-      background: var(--gold);
+      background: var(--ink);
       pointer-events: none;
       z-index: 9999;
       transform: translate(-50%, -50%);
-      mix-blend-mode: difference;
     }
 
-    /* ── Grain ── */
+    /* ── Grid ── */
     body::before {
       content: '';
       position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-image:
+        linear-gradient(var(--grid-c) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-c) 1px, transparent 1px);
+      background-size: 30px 30px;
       pointer-events: none;
-      z-index: 1000;
-      opacity: .5;
+      z-index: 0;
     }
 
-    /* ── Ambient glows ── */
-    .glow {
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      filter: blur(140px);
-      opacity: 0;
-    }
-    .glow-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(201,168,76,.07) 0%, transparent 70%); top: -150px; right: -100px; }
-    .glow-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(201,168,76,.05) 0%, transparent 70%); bottom: -100px; left: -80px; }
-
-    /* ── Frame lines ── */
-    .line-h { position: fixed; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim), transparent); opacity: 0; }
-    .line-h.top    { top: 48px; }
-    .line-h.bottom { bottom: 48px; }
-    .line-v { position: fixed; top: 0; bottom: 0; width: 1px; background: linear-gradient(180deg, transparent, var(--gold-dim), transparent); opacity: 0; }
-    .line-v.left  { left: 48px; }
-    .line-v.right { right: 48px; }
-
-    /* ── Sidebar nav ── */
+    /* ── Sidebar ── */
     #sidebar {
       position: fixed;
       top: 0; left: 0;
-      width: 72px;
-      height: 100vh;
+      width: 68px; height: 100vh;
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 28px;
-      border-right: 1px solid var(--border);
+      padding: 28px 0;
+      gap: 0;
       z-index: 100;
+      background: var(--cream);
       opacity: 0;
     }
 
-    .nav-item {
+    .sidebar-logo {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      margin-bottom: 40px;
+    }
+
+    .nav-items {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
-      cursor: none;
-      padding: 8px;
-      position: relative;
+      gap: 4px;
+      flex: 1;
     }
 
-    .nav-item svg { color: var(--muted); transition: color .3s; }
-    .nav-item:hover svg { color: var(--gold); }
-
-    .nav-item::after {
+    .nav-item {
+      width: 44px; height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0;
+      cursor: none;
+      position: relative;
+      transition: background .2s;
+    }
+    .nav-item svg { color: var(--ink-dim); transition: color .2s; }
+    .nav-item.active svg, .nav-item:hover svg { color: var(--ink); }
+    .nav-item.active::after {
       content: '';
       position: absolute;
-      right: -1px; top: 50%; bottom: 50%;
+      right: 0; top: 20%; bottom: 20%;
       width: 2px;
-      background: var(--gold);
-      transition: top .3s, bottom .3s;
+      background: var(--ink);
     }
-    .nav-item.active::after { top: 10%; bottom: 10%; }
-    .nav-item.active svg { color: var(--gold); }
 
     /* ── Top bar ── */
     #topbar {
       position: fixed;
-      top: 0; left: 72px; right: 0;
-      height: 64px;
+      top: 0; left: 68px; right: 0;
+      height: 60px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 48px;
-      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      background: var(--cream);
       z-index: 100;
       opacity: 0;
     }
 
     .topbar-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: 18px;
-      letter-spacing: .12em;
-      color: var(--white);
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 17px;
+      color: var(--ink);
+      letter-spacing: -.01em;
     }
 
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
+    .chip {
+      display: inline-flex; align-items: center; gap: 7px;
       padding: 5px 14px;
-      border: 1px solid var(--gold-dim);
-      font-size: 9px;
-      letter-spacing: .25em;
-      text-transform: uppercase;
-      color: var(--gold);
+      border: 1px solid var(--border);
+      font-size: 10px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--ink-mid);
+      background: transparent;
     }
-    .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+    .chip-dot { width: 5px; height: 5px; border-radius: 50%; background: #3aaa68; box-shadow: 0 0 5px #3aaa68; }
 
-    /* ── Main content ── */
+    /* ── Main ── */
     #main {
-      margin-left: 72px;
-      padding: 64px 64px 64px 64px;
+      margin-left: 68px;
+      padding: 100px 48px 64px;
       min-height: 100vh;
-      padding-top: 112px;
+      position: relative;
+      z-index: 10;
     }
 
-    /* ── Welcome block ── */
-    .welcome-block {
-      margin-bottom: 64px;
-      opacity: 0;
+    /* ── Welcome ── */
+    .welcome {
+      margin-bottom: 52px;
+      opacity: 0; transform: translateY(16px);
     }
     .welcome-eyebrow {
-      font-size: 10px;
-      letter-spacing: .35em;
-      color: var(--gold);
-      text-transform: uppercase;
-      margin-bottom: 16px;
+      font-size: 10px; letter-spacing: .28em;
+      text-transform: uppercase; color: var(--ink-dim);
+      margin-bottom: 14px;
     }
     .welcome-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: clamp(36px, 5vw, 64px);
-      letter-spacing: .04em;
-      line-height: 1.1;
-      margin-bottom: 16px;
-    }
-    .welcome-subtitle {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'DM Serif Display', serif;
       font-style: italic;
-      font-size: 18px;
-      color: var(--muted);
-      letter-spacing: .06em;
+      font-weight: 400;
+      font-size: clamp(32px, 5vw, 56px);
+      letter-spacing: -.02em;
+      line-height: 1.05;
+      margin-bottom: 12px;
+    }
+    .welcome-sub {
+      font-weight: 300; font-size: 14px;
+      color: var(--ink-mid); letter-spacing: .02em;
     }
 
-    /* ── Rule ── */
     .rule {
-      width: 0;
-      height: 1px;
-      background: linear-gradient(90deg, var(--gold), transparent);
-      margin-bottom: 64px;
-    }
-
-    /* ── Stats grid ── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
+      width: 0; height: 1px;
+      background: var(--ink); opacity: .12;
       margin-bottom: 48px;
     }
 
-    .stat-card {
-      background: var(--black);
-      padding: 36px 32px;
-      opacity: 0;
+    /* ── Stat grid ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+    .stat {
+      padding: 32px 28px;
+      border-right: 1px solid var(--border);
+      opacity: 0; transform: translateY(12px);
       position: relative;
       overflow: hidden;
     }
+    .stat:last-child { border-right: none; }
 
-    .stat-card::before {
+    .stat::after {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, var(--gold), transparent);
-      transform: translateX(-101%);
-      transition: transform .5s ease;
+      bottom: 0; left: 0; right: 100%;
+      height: 2px;
+      background: var(--ink);
+      opacity: .1;
+      transition: right .4s ease;
     }
-    .stat-card:hover::before { transform: translateX(0); }
+    .stat:hover::after { right: 0; }
 
-    .stat-label {
-      font-size: 9px;
-      letter-spacing: .3em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
+    .stat-label { font-size: 9px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 10px; }
     .stat-value {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: 42px;
-      letter-spacing: .02em;
-      color: var(--white);
-      line-height: 1;
-      margin-bottom: 6px;
+      font-family: 'DM Serif Display', serif;
+      font-weight: 400; font-size: 40px;
+      letter-spacing: -.02em; line-height: 1;
+      color: var(--ink); margin-bottom: 5px;
     }
-    .stat-sub {
-      font-size: 10px;
-      letter-spacing: .15em;
-      color: var(--gold-dim);
-    }
+    .stat-sub { font-size: 11px; letter-spacing: .1em; color: var(--ink-dim); }
 
     /* ── Content row ── */
-    .content-row {
+    .row {
       display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 24px;
-      margin-bottom: 24px;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
     }
 
     .panel {
-      border: 1px solid var(--border);
-      padding: 36px;
-      opacity: 0;
-      position: relative;
+      background: var(--cream);
+      padding: 32px;
+      opacity: 0; transform: translateY(12px);
     }
     .panel-label {
-      font-size: 9px;
-      letter-spacing: .35em;
-      text-transform: uppercase;
-      color: var(--gold);
+      font-size: 9px; letter-spacing: .28em;
+      text-transform: uppercase; color: var(--ink-dim);
       margin-bottom: 24px;
     }
 
-    /* Activity list */
+    /* Activity */
     .activity-item {
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       justify-content: space-between;
-      padding: 14px 0;
+      padding: 13px 0;
       border-bottom: 1px solid var(--border);
     }
     .activity-item:last-child { border-bottom: none; }
+    .act-left  { display: flex; align-items: center; gap: 12px; }
+    .act-dot   { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); flex-shrink: 0; }
+    .act-name  { font-size: 13px; letter-spacing: .02em; }
+    .act-time  { font-size: 10px; color: var(--ink-dim); }
+    .act-badge {
+      font-size: 9px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--ink-mid);
+      padding: 3px 10px;
+      border: 1px solid var(--border);
+    }
 
-    .activity-left { display: flex; align-items: center; gap: 14px; }
-    .activity-dot  { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-dim); flex-shrink: 0; }
-    .activity-name { font-size: 12px; letter-spacing: .1em; color: var(--white); }
-    .activity-time { font-size: 10px; letter-spacing: .1em; color: var(--muted); }
-    .activity-status { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
-
-    /* Token display */
-    .token-visual {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      min-height: 200px;
-      gap: 16px;
-    }
-    .token-hex {
-      font-size: 72px;
-      line-height: 1;
-      color: var(--gold);
-      opacity: .15;
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-    }
-    .token-label {
-      font-size: 9px;
-      letter-spacing: .3em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .token-id {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px;
-      letter-spacing: .15em;
-      color: var(--gold);
-    }
-    .token-contract {
-      font-size: 9px;
-      letter-spacing: .1em;
-      color: var(--muted);
-      word-break: break-all;
+    /* Token panel */
+    .token-body {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 200px; gap: 12px;
       text-align: center;
-      max-width: 240px;
+    }
+    .token-mark {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500; font-size: 52px;
+      letter-spacing: -.025em; color: var(--ink);
+      opacity: .08; line-height: 1;
+    }
+    .token-name {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic; font-size: 20px;
+      color: var(--ink); letter-spacing: -.01em;
+    }
+    .token-address {
+      font-size: 10px; color: var(--ink-dim);
+      letter-spacing: .06em; word-break: break-all;
+      max-width: 200px; line-height: 1.6;
     }
   </style>
 
@@ -334,133 +288,137 @@
 
   <div id="cursor"></div>
 
-  <div class="glow glow-1"></div>
-  <div class="glow glow-2"></div>
-
-  <div class="line-h top"></div>
-  <div class="line-h bottom"></div>
-
   <!-- Sidebar -->
 
   <nav id="sidebar">
-    <!-- Home -->
-    <div class="nav-item active">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-    </div>
-    <!-- Token -->
-    <div class="nav-item">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-      </svg>
-    </div>
-    <!-- Activity -->
-    <div class="nav-item">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-      </svg>
-    </div>
-    <!-- Settings -->
-    <div class="nav-item">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/>
-      </svg>
+    <div class="sidebar-logo">LM.</div>
+    <div class="nav-items">
+      <!-- Home -->
+      <div class="nav-item active">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <!-- Members -->
+      <div class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <!-- Activity -->
+      <div class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <!-- Settings -->
+      <div class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/>
+        </svg>
+      </div>
     </div>
   </nav>
 
   <!-- Topbar -->
 
   <header id="topbar">
-    <span class="topbar-title">The Club</span>
+    <span class="topbar-title">LifeClub Dashboard</span>
     <div class="topbar-right">
-      <div class="badge">
-        <div class="badge-dot"></div>
+      <div class="chip">
+        <div class="chip-dot"></div>
         <span>NFT Verified</span>
       </div>
-      <div class="badge" id="wallet-badge" style="border-color: rgba(90,86,80,.4); color: var(--muted);">
+      <div class="chip" id="wallet-chip">
         <span id="wallet-short">—</span>
       </div>
     </div>
   </header>
 
-  <!-- Main -->
+  <!-- Main content -->
 
   <main id="main">
 
 ```
-<!-- Welcome -->
-<div class="welcome-block" id="welcome">
+<div class="welcome" id="welcome">
   <p class="welcome-eyebrow">Dashboard</p>
   <h1 class="welcome-title">Welcome back,<br>Member.</h1>
-  <p class="welcome-subtitle">Your access has been verified.</p>
+  <p class="welcome-sub">No hype. Just progress.</p>
 </div>
 
-<!-- Rule -->
 <div class="rule" id="rule"></div>
 
 <!-- Stats -->
-<div class="stats-grid">
-  <div class="stat-card" id="stat-1">
-    <p class="stat-label">Token Balance</p>
+<div class="stats">
+  <div class="stat" id="s1">
+    <p class="stat-label">NFTs Held</p>
     <p class="stat-value" id="count-1">0</p>
-    <p class="stat-sub">NFTs Held</p>
+    <p class="stat-sub">Verified on-chain</p>
   </div>
-  <div class="stat-card" id="stat-2">
+  <div class="stat" id="s2">
     <p class="stat-label">Network</p>
-    <p class="stat-value" style="font-size:28px; padding-top:8px;">Sepolia</p>
+    <p class="stat-value" style="font-size:26px; padding-top:8px;">Sepolia</p>
     <p class="stat-sub">Ethereum Testnet</p>
   </div>
-  <div class="stat-card" id="stat-3">
-    <p class="stat-label">Access Level</p>
-    <p class="stat-value" style="font-size:28px; padding-top:8px;">Full</p>
-    <p class="stat-sub">All Areas</p>
+  <div class="stat" id="s3">
+    <p class="stat-label">Access</p>
+    <p class="stat-value" style="font-size:26px; padding-top:8px;">Full</p>
+    <p class="stat-sub">All areas unlocked</p>
   </div>
 </div>
 
-<!-- Content row -->
-<div class="content-row">
+<!-- Row -->
+<div class="row">
 
-  <!-- Activity panel -->
-  <div class="panel" id="panel-1">
-    <p class="panel-label">Recent Activity</p>
+  <!-- Activity -->
+  <div class="panel" id="p1">
+    <p class="panel-label">Verification Log</p>
     <div class="activity-item">
-      <div class="activity-left">
-        <div class="activity-dot" style="background: var(--gold);"></div>
-        <span class="activity-name">Wallet Verified</span>
+      <div class="act-left">
+        <div class="act-dot"></div>
+        <span class="act-name">Wallet Connected</span>
       </div>
-      <div>
-        <span class="activity-time">just now</span>
-      </div>
-      <span class="activity-status">Complete</span>
+      <span class="act-time">just now</span>
+      <span class="act-badge">Done</span>
     </div>
     <div class="activity-item">
-      <div class="activity-left">
-        <div class="activity-dot"></div>
-        <span class="activity-name">NFT Ownership Confirmed</span>
+      <div class="act-left">
+        <div class="act-dot"></div>
+        <span class="act-name">Message Signed</span>
       </div>
-      <div><span class="activity-time">just now</span></div>
-      <span class="activity-status">Verified</span>
+      <span class="act-time">just now</span>
+      <span class="act-badge">Done</span>
     </div>
     <div class="activity-item">
-      <div class="activity-left">
-        <div class="activity-dot"></div>
-        <span class="activity-name">Access Granted</span>
+      <div class="act-left">
+        <div class="act-dot"></div>
+        <span class="act-name">NFT Ownership Confirmed</span>
       </div>
-      <div><span class="activity-time">just now</span></div>
-      <span class="activity-status">Active</span>
+      <span class="act-time">just now</span>
+      <span class="act-badge">Verified</span>
+    </div>
+    <div class="activity-item">
+      <div class="act-left">
+        <div class="act-dot"></div>
+        <span class="act-name">Access Granted</span>
+      </div>
+      <span class="act-time">just now</span>
+      <span class="act-badge">Active</span>
     </div>
   </div>
 
-  <!-- Token panel -->
-  <div class="panel" id="panel-2">
+  <!-- Token -->
+  <div class="panel" id="p2">
     <p class="panel-label">Your Token</p>
-    <div class="token-visual">
-      <div class="token-hex" id="token-hex">◈</div>
-      <p class="token-label">Contract Address</p>
-      <p class="token-id">Lefty NFT</p>
-      <p class="token-contract">0xd614eEC2C666c412484cf3a31Ea3D8e57186624D</p>
+    <div class="token-body">
+      <div class="token-mark">LM.</div>
+      <p class="token-name">LifeClub NFT</p>
+      <p class="token-address">0xd614eEC2C666c412484cf3a31Ea3D8e57186624D</p>
     </div>
   </div>
 
@@ -475,55 +433,44 @@
     document.addEventListener('mousemove', e => {
       gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: .1, ease: 'power2.out' });
     });
+    document.querySelectorAll('.nav-item, .chip').forEach(el => {
+      el.addEventListener('mouseenter', () => gsap.to(cursor, { width: 28, height: 28, duration: .2 }));
+      el.addEventListener('mouseleave', () => gsap.to(cursor, { width: 10, height: 10, duration: .2 }));
+    });
 
-    /* ── Wallet from URL or sessionStorage ── */
-    const params  = new URLSearchParams(window.location.search);
-    const wallet  = params.get('wallet') || sessionStorage.getItem('verified_wallet') || '';
+    /* ── Wallet ── */
+    const params = new URLSearchParams(window.location.search);
+    const wallet = params.get('wallet') || sessionStorage.getItem('verified_wallet') || '';
     if (wallet) {
-      document.getElementById('wallet-short').textContent = wallet.slice(0,6) + '...' + wallet.slice(-4);
+      document.getElementById('wallet-short').textContent =
+        wallet.slice(0,6) + '...' + wallet.slice(-4);
     }
 
-    /* ── Entrance timeline ── */
+    /* ── Entrance ── */
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
     tl
-      .to('.glow',       { opacity: 1, duration: 2, stagger: .4 }, 0)
-      .to('.line-h',     { opacity: 1, duration: 1.2 }, 0.2)
-      .to('#sidebar',    { opacity: 1, duration: .8 }, 0.4)
-      .to('#topbar',     { opacity: 1, duration: .7 }, 0.6)
-      .to('#welcome',    { opacity: 1, y: 0, duration: .9 }, 0.8)
-      .to('#rule',       { width: 300, duration: 1, ease: 'power2.inOut' }, 1.2)
-      .to('#stat-1',     { opacity: 1, y: 0, duration: .6 }, 1.4)
-      .to('#stat-2',     { opacity: 1, y: 0, duration: .6 }, 1.55)
-      .to('#stat-3',     { opacity: 1, y: 0, duration: .6 }, 1.7)
-      .to('#panel-1',    { opacity: 1, y: 0, duration: .7 }, 1.85)
-      .to('#panel-2',    { opacity: 1, y: 0, duration: .7 }, 2.0)
+      .to('#sidebar',  { opacity: 1, duration: .7 }, 0.1)
+      .to('#topbar',   { opacity: 1, duration: .6 }, 0.3)
+      .to('#welcome',  { opacity: 1, y: 0, duration: .85 }, 0.55)
+      .to('#rule',     { width: 260, duration: .9, ease: 'power2.inOut' }, 1.0)
+      .to('#s1',       { opacity: 1, y: 0, duration: .55 }, 1.2)
+      .to('#s2',       { opacity: 1, y: 0, duration: .55 }, 1.35)
+      .to('#s3',       { opacity: 1, y: 0, duration: .55 }, 1.5)
+      .to('#p1',       { opacity: 1, y: 0, duration: .6 }, 1.65)
+      .to('#p2',       { opacity: 1, y: 0, duration: .6 }, 1.8)
       .call(() => {
-        /* Animate counter */
-        gsap.to({ val: 0 }, {
-          val: 1, duration: 1.2, ease: 'power2.out',
+        /* Counter */
+        gsap.to({ v: 0 }, {
+          v: 1, duration: 1, ease: 'power2.out',
           onUpdate: function() {
-            document.getElementById('count-1').textContent = Math.round(this.targets()[0].val);
+            document.getElementById('count-1').textContent = Math.round(this.targets()[0].v);
           }
         });
-        /* Token hex pulse */
-        gsap.to('#token-hex', {
-          opacity: .3, duration: 2, repeat: -1, yoyo: true, ease: 'sine.inOut'
+        /* Token mark breathe */
+        gsap.to('.token-mark', {
+          opacity: .14, duration: 2.5, repeat: -1, yoyo: true, ease: 'sine.inOut'
         });
       });
-
-    /* ── Nav item hover ── */
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('mouseenter', () => {
-        gsap.to(item.querySelector('svg'), { color: '#c9a84c', duration: .2 });
-        cursor.style.width = '28px';
-        cursor.style.height = '28px';
-      });
-      item.addEventListener('mouseleave', () => {
-        cursor.style.width = '8px';
-        cursor.style.height = '8px';
-      });
-    });
   </script>
 
 </body>
