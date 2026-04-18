@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Members Club</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Josefin+Sans:wght@100;300;400&display=swap" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #080808;
+      --deep:    #0f0f0f;
+      --gold:    #c9a84c;
+      --gold-dim:#8a6e2f;
+      --white:   #f0ece4;
+      --muted:   #4a4642;
+      --border:  rgba(201,168,76,.12);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Josefin Sans', sans-serif;
+      cursor: none;
+      overflow-x: hidden;
+    }
+
+    /* ── Cursor ── */
+    #cursor {
+      position: fixed;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: difference;
+    }
+
+    /* ── Grain ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: .5;
+    }
+
+    /* ── Ambient glows ── */
+    .glow {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(140px);
+      opacity: 0;
+    }
+    .glow-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(201,168,76,.07) 0%, transparent 70%); top: -150px; right: -100px; }
+    .glow-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(201,168,76,.05) 0%, transparent 70%); bottom: -100px; left: -80px; }
+
+    /* ── Frame lines ── */
+    .line-h { position: fixed; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim), transparent); opacity: 0; }
+    .line-h.top    { top: 48px; }
+    .line-h.bottom { bottom: 48px; }
+    .line-v { position: fixed; top: 0; bottom: 0; width: 1px; background: linear-gradient(180deg, transparent, var(--gold-dim), transparent); opacity: 0; }
+    .line-v.left  { left: 48px; }
+    .line-v.right { right: 48px; }
+
+    /* ── Sidebar nav ── */
+    #sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 72px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      border-right: 1px solid var(--border);
+      z-index: 100;
+      opacity: 0;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      cursor: none;
+      padding: 8px;
+      position: relative;
+    }
+
+    .nav-item svg { color: var(--muted); transition: color .3s; }
+    .nav-item:hover svg { color: var(--gold); }
+
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      right: -1px; top: 50%; bottom: 50%;
+      width: 2px;
+      background: var(--gold);
+      transition: top .3s, bottom .3s;
+    }
+    .nav-item.active::after { top: 10%; bottom: 10%; }
+    .nav-item.active svg { color: var(--gold); }
+
+    /* ── Top bar ── */
+    #topbar {
+      position: fixed;
+      top: 0; left: 72px; right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      opacity: 0;
+    }
+
+    .topbar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 18px;
+      letter-spacing: .12em;
+      color: var(--white);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 14px;
+      border: 1px solid var(--gold-dim);
+      font-size: 9px;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+
+    /* ── Main content ── */
+    #main {
+      margin-left: 72px;
+      padding: 64px 64px 64px 64px;
+      min-height: 100vh;
+      padding-top: 112px;
+    }
+
+    /* ── Welcome block ── */
+    .welcome-block {
+      margin-bottom: 64px;
+      opacity: 0;
+    }
+    .welcome-eyebrow {
+      font-size: 10px;
+      letter-spacing: .35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .welcome-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(36px, 5vw, 64px);
+      letter-spacing: .04em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .welcome-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 18px;
+      color: var(--muted);
+      letter-spacing: .06em;
+    }
+
+    /* ── Rule ── */
+    .rule {
+      width: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin-bottom: 64px;
+    }
+
+    /* ── Stats grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+
+    .stat-card {
+      background: var(--black);
+      padding: 36px 32px;
+      opacity: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      transform: translateX(-101%);
+      transition: transform .5s ease;
+    }
+    .stat-card:hover::before { transform: translateX(0); }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 42px;
+      letter-spacing: .02em;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-sub {
+      font-size: 10px;
+      letter-spacing: .15em;
+      color: var(--gold-dim);
+    }
+
+    /* ── Content row ── */
+    .content-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      padding: 36px;
+      opacity: 0;
+      position: relative;
+    }
+    .panel-label {
+      font-size: 9px;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+    }
+
+    /* Activity list */
+    .activity-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-left { display: flex; align-items: center; gap: 14px; }
+    .activity-dot  { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-dim); flex-shrink: 0; }
+    .activity-name { font-size: 12px; letter-spacing: .1em; color: var(--white); }
+    .activity-time { font-size: 10px; letter-spacing: .1em; color: var(--muted); }
+    .activity-status { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+
+    /* Token display */
+    .token-visual {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 200px;
+      gap: 16px;
+    }
+    .token-hex {
+      font-size: 72px;
+      line-height: 1;
+      color: var(--gold);
+      opacity: .15;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+    }
+    .token-label {
+      font-size: 9px;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .token-id {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      letter-spacing: .15em;
+      color: var(--gold);
+    }
+    .token-contract {
+      font-size: 9px;
+      letter-spacing: .1em;
+      color: var(--muted);
+      word-break: break-all;
+      text-align: center;
+      max-width: 240px;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div id="cursor"></div>
+
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+
+  <div class="line-h top"></div>
+  <div class="line-h bottom"></div>
+
+  <!-- Sidebar -->
+
+  <nav id="sidebar">
+    <!-- Home -->
+    <div class="nav-item active">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    </div>
+    <!-- Token -->
+    <div class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+    </div>
+    <!-- Activity -->
+    <div class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+    </div>
+    <!-- Settings -->
+    <div class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/>
+      </svg>
+    </div>
+  </nav>
+
+  <!-- Topbar -->
+
+  <header id="topbar">
+    <span class="topbar-title">The Club</span>
+    <div class="topbar-right">
+      <div class="badge">
+        <div class="badge-dot"></div>
+        <span>NFT Verified</span>
+      </div>
+      <div class="badge" id="wallet-badge" style="border-color: rgba(90,86,80,.4); color: var(--muted);">
+        <span id="wallet-short">—</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+
+  <main id="main">
+
+```
+<!-- Welcome -->
+<div class="welcome-block" id="welcome">
+  <p class="welcome-eyebrow">Dashboard</p>
+  <h1 class="welcome-title">Welcome back,<br>Member.</h1>
+  <p class="welcome-subtitle">Your access has been verified.</p>
+</div>
+
+<!-- Rule -->
+<div class="rule" id="rule"></div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card" id="stat-1">
+    <p class="stat-label">Token Balance</p>
+    <p class="stat-value" id="count-1">0</p>
+    <p class="stat-sub">NFTs Held</p>
+  </div>
+  <div class="stat-card" id="stat-2">
+    <p class="stat-label">Network</p>
+    <p class="stat-value" style="font-size:28px; padding-top:8px;">Sepolia</p>
+    <p class="stat-sub">Ethereum Testnet</p>
+  </div>
+  <div class="stat-card" id="stat-3">
+    <p class="stat-label">Access Level</p>
+    <p class="stat-value" style="font-size:28px; padding-top:8px;">Full</p>
+    <p class="stat-sub">All Areas</p>
+  </div>
+</div>
+
+<!-- Content row -->
+<div class="content-row">
+
+  <!-- Activity panel -->
+  <div class="panel" id="panel-1">
+    <p class="panel-label">Recent Activity</p>
+    <div class="activity-item">
+      <div class="activity-left">
+        <div class="activity-dot" style="background: var(--gold);"></div>
+        <span class="activity-name">Wallet Verified</span>
+      </div>
+      <div>
+        <span class="activity-time">just now</span>
+      </div>
+      <span class="activity-status">Complete</span>
+    </div>
+    <div class="activity-item">
+      <div class="activity-left">
+        <div class="activity-dot"></div>
+        <span class="activity-name">NFT Ownership Confirmed</span>
+      </div>
+      <div><span class="activity-time">just now</span></div>
+      <span class="activity-status">Verified</span>
+    </div>
+    <div class="activity-item">
+      <div class="activity-left">
+        <div class="activity-dot"></div>
+        <span class="activity-name">Access Granted</span>
+      </div>
+      <div><span class="activity-time">just now</span></div>
+      <span class="activity-status">Active</span>
+    </div>
+  </div>
+
+  <!-- Token panel -->
+  <div class="panel" id="panel-2">
+    <p class="panel-label">Your Token</p>
+    <div class="token-visual">
+      <div class="token-hex" id="token-hex">◈</div>
+      <p class="token-label">Contract Address</p>
+      <p class="token-id">Lefty NFT</p>
+      <p class="token-contract">0xd614eEC2C666c412484cf3a31Ea3D8e57186624D</p>
+    </div>
+  </div>
+
+</div>
+```
+
+  </main>
+
+  <script>
+    /* ── Cursor ── */
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: .1, ease: 'power2.out' });
+    });
+
+    /* ── Wallet from URL or sessionStorage ── */
+    const params  = new URLSearchParams(window.location.search);
+    const wallet  = params.get('wallet') || sessionStorage.getItem('verified_wallet') || '';
+    if (wallet) {
+      document.getElementById('wallet-short').textContent = wallet.slice(0,6) + '...' + wallet.slice(-4);
+    }
+
+    /* ── Entrance timeline ── */
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    tl
+      .to('.glow',       { opacity: 1, duration: 2, stagger: .4 }, 0)
+      .to('.line-h',     { opacity: 1, duration: 1.2 }, 0.2)
+      .to('#sidebar',    { opacity: 1, duration: .8 }, 0.4)
+      .to('#topbar',     { opacity: 1, duration: .7 }, 0.6)
+      .to('#welcome',    { opacity: 1, y: 0, duration: .9 }, 0.8)
+      .to('#rule',       { width: 300, duration: 1, ease: 'power2.inOut' }, 1.2)
+      .to('#stat-1',     { opacity: 1, y: 0, duration: .6 }, 1.4)
+      .to('#stat-2',     { opacity: 1, y: 0, duration: .6 }, 1.55)
+      .to('#stat-3',     { opacity: 1, y: 0, duration: .6 }, 1.7)
+      .to('#panel-1',    { opacity: 1, y: 0, duration: .7 }, 1.85)
+      .to('#panel-2',    { opacity: 1, y: 0, duration: .7 }, 2.0)
+      .call(() => {
+        /* Animate counter */
+        gsap.to({ val: 0 }, {
+          val: 1, duration: 1.2, ease: 'power2.out',
+          onUpdate: function() {
+            document.getElementById('count-1').textContent = Math.round(this.targets()[0].val);
+          }
+        });
+        /* Token hex pulse */
+        gsap.to('#token-hex', {
+          opacity: .3, duration: 2, repeat: -1, yoyo: true, ease: 'sine.inOut'
+        });
+      });
+
+    /* ── Nav item hover ── */
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        gsap.to(item.querySelector('svg'), { color: '#c9a84c', duration: .2 });
+        cursor.style.width = '28px';
+        cursor.style.height = '28px';
+      });
+      item.addEventListener('mouseleave', () => {
+        cursor.style.width = '8px';
+        cursor.style.height = '8px';
+      });
+    });
+  </script>
+
+</body>
+</html>
