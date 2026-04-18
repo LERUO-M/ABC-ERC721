@@ -88,7 +88,7 @@
       text-transform: uppercase; color: var(--ink-dim);
       opacity: 0;
     }
-    .network-dot { width: 5px; height: 5px; border-radius: 50%; background: #3aaa68; box-shadow: 0 0 5px #3aaa68; }
+    .network-dot { width: 5px; height: 5px; border-radius: 50%; background: #ff9036; box-shadow: 0 0 5px #3aaa68; }
 
     /* ── Tagline ── */
     .tagline {
@@ -290,7 +290,7 @@
 
   <div class="network-badge">
     <div class="network-dot"></div>
-    <span>Ethereum Sepolia</span>
+    <span>Server in development</span>
   </div>
 
   <p class="tagline" id="tagline">Doing life together — for real.</p>
@@ -402,7 +402,7 @@
         });
         const data = await res.json();
 
-        data.authorized ? showSuccess() : showDenied(data.message || 'No access.');
+        data.authorized ? showSuccess(walletAddress) : showDenied(data.message || 'No access.');
 
       } catch (err) {
         hideSpinner();
@@ -424,7 +424,8 @@
       gsap.to('#spinner', { opacity: 0, duration: .22, pointerEvents: 'none' });
     }
 
-    function showSuccess() {
+    function showSuccess(walletAddress) {
+      sessionStorage.setItem('verified_wallet', walletAddress);
       hideSpinner();
       const o = document.getElementById('result-overlay');
       document.getElementById('result-title').textContent = 'Welcome in.';

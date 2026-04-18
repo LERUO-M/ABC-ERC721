@@ -24,6 +24,17 @@ const nftContract = new ethers.Contract(contractAddress, abi, provider);
 
 const SIGN_IN_MESSAGE = "Welcome to the Club! Please sign this message to verify your wallet ownership.";
 
+app.post('/verify-session', async (req, res) => {
+  const { walletAddress } = req.body;
+  if (!walletAddress) return res.status(400).json({ authorized: false });
+  try {
+    const balance = await nftContract.balanceOf(walletAddress);
+    res.json({ authorized: balance > 0n });
+  } catch (e) {
+    res.status(500).json({ authorized: false });
+  }
+});
+
 app.post('/verify-nft', async (req, res) => {
   const { walletAddress, signature } = req.body;
 

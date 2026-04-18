@@ -25,12 +25,24 @@
       --grid-c:  rgba(0,0,0,0.055);
     }
 
+    /* ── Dark mode ── */
+    body.dark {
+      --cream:   #111111;
+      --cream-d: #1a1a1a;
+      --ink:     #F0ECE4;
+      --ink-mid: #999999;
+      --ink-dim: #555555;
+      --border:  rgba(255,255,255,0.08);
+      --grid-c:  rgba(255,255,255,0.04);
+    }
+
     html, body {
       min-height: 100%;
       background: var(--cream);
       color: var(--ink);
       font-family: 'DM Sans', sans-serif;
       cursor: none;
+      transition: background .35s ease, color .35s ease;
     }
 
     /* ── Cursor ── */
@@ -42,6 +54,7 @@
       pointer-events: none;
       z-index: 9999;
       transform: translate(-50%, -50%);
+      transition: background .35s ease;
     }
 
     /* ── Grid ── */
@@ -64,12 +77,14 @@
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
       padding: 28px 0;
       gap: 0;
       z-index: 100;
       background: var(--cream);
       opacity: 0;
+      overflow: hidden;
+      transition: background .35s ease, border-color .35s ease;
     }
 
     .sidebar-logo {
@@ -79,27 +94,35 @@
       letter-spacing: -.02em;
       color: var(--ink);
       margin-bottom: 40px;
+      padding: 0 0 0 26px;
+      text-decoration: none;
+      display: block;
+      white-space: nowrap;
     }
+    .sidebar-logo:hover { opacity: .7; }
 
     .nav-items {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
       gap: 4px;
       flex: 1;
+      width: 100%;
     }
 
     .nav-item {
-      width: 44px; height: 44px;
+      width: 100%; height: 44px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 14px;
+      padding: 0 0 0 25px;
       border-radius: 0;
       cursor: none;
       position: relative;
       transition: background .2s;
+      white-space: nowrap;
     }
-    .nav-item svg { color: var(--ink-dim); transition: color .2s; }
+    .nav-item svg { color: var(--ink-dim); transition: color .2s; flex-shrink: 0; }
     .nav-item.active svg, .nav-item:hover svg { color: var(--ink); }
     .nav-item.active::after {
       content: '';
@@ -108,6 +131,26 @@
       width: 2px;
       background: var(--ink);
     }
+    .nav-label {
+      font-size: 10px; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--ink-dim);
+      opacity: 0; transition: color .2s;
+    }
+    .nav-item:hover .nav-label, .nav-item.active .nav-label { color: var(--ink); }
+
+    /* ── Logout button ── */
+    #logout-btn {
+      width: 100%; height: 44px;
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 0 0 25px;
+      background: none; border: none;
+      cursor: none; white-space: nowrap;
+      margin-bottom: 8px;
+    }
+    #logout-btn svg { color: var(--ink-dim); transition: color .2s; flex-shrink: 0; }
+    #logout-btn:hover svg { color: #B83232; }
+    #logout-btn .nav-label { color: var(--ink-dim); opacity: 0; }
+    #logout-btn:hover .nav-label { color: #B83232; }
 
     /* ── Top bar ── */
     #topbar {
@@ -122,6 +165,7 @@
       background: var(--cream);
       z-index: 100;
       opacity: 0;
+      transition: background .35s ease, border-color .35s ease;
     }
 
     .topbar-title {
@@ -143,6 +187,25 @@
       background: transparent;
     }
     .chip-dot { width: 5px; height: 5px; border-radius: 50%; background: #3aaa68; box-shadow: 0 0 5px #3aaa68; }
+
+    /* ── Theme toggle ── */
+    #theme-toggle {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: none;
+      color: var(--ink-mid);
+      transition: color .2s, border-color .2s;
+      flex-shrink: 0;
+    }
+    #theme-toggle:hover { color: var(--ink); }
+    #theme-toggle svg { display: block; }
+    /* show correct icon */
+    #icon-moon { display: block; }
+    #icon-sun  { display: none; }
+    body.dark #icon-moon { display: none; }
+    body.dark #icon-sun  { display: block; }
 
     /* ── Main ── */
     #main {
@@ -183,10 +246,10 @@
       margin-bottom: 48px;
     }
 
-    /* ── Stat grid ── */
+    /* ── Stat grid — 2 cols ── */
     .stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       border: 1px solid var(--border);
       margin-bottom: 32px;
     }
@@ -230,31 +293,32 @@
 
     .panel {
       background: var(--cream);
-      padding: 32px;
+      padding: 24px 28px;
       opacity: 0; transform: translateY(12px);
+      transition: background .35s ease;
     }
     .panel-label {
       font-size: 9px; letter-spacing: .28em;
       text-transform: uppercase; color: var(--ink-dim);
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
 
-    /* Activity */
+    /* Activity — compact */
     .activity-item {
       display: flex; align-items: center;
       justify-content: space-between;
-      padding: 13px 0;
+      padding: 9px 0;
       border-bottom: 1px solid var(--border);
     }
     .activity-item:last-child { border-bottom: none; }
-    .act-left  { display: flex; align-items: center; gap: 12px; }
-    .act-dot   { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); flex-shrink: 0; }
-    .act-name  { font-size: 13px; letter-spacing: .02em; }
-    .act-time  { font-size: 10px; color: var(--ink-dim); }
+    .act-left  { display: flex; align-items: center; gap: 10px; }
+    .act-dot   { width: 5px; height: 5px; border-radius: 50%; background: var(--ink); flex-shrink: 0; }
+    .act-name  { font-size: 12px; letter-spacing: .02em; }
+    .act-time  { font-size: 9px; color: var(--ink-dim); }
     .act-badge {
-      font-size: 9px; letter-spacing: .16em;
+      font-size: 8px; letter-spacing: .16em;
       text-transform: uppercase; color: var(--ink-mid);
-      padding: 3px 10px;
+      padding: 2px 8px;
       border: 1px solid var(--border);
     }
 
@@ -262,15 +326,36 @@
     .token-body {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      min-height: 200px; gap: 12px;
+      min-height: 180px; gap: 10px;
       text-align: center;
+    }
+
+    /* ── Token mark with glow layer ── */
+    .token-mark-wrap {
+      position: relative;
+      display: inline-block;
+      cursor: none;
     }
     .token-mark {
       font-family: 'DM Sans', sans-serif;
       font-weight: 500; font-size: 52px;
       letter-spacing: -.025em; color: var(--ink);
       opacity: .08; line-height: 1;
+      position: relative; z-index: 1;
+      transition: color .35s ease;
     }
+    /* radial glow behind the mark */
+    .token-glow {
+      position: absolute;
+      inset: -24px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,200,80,0.55) 0%, transparent 70%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(12px);
+    }
+
     .token-name {
       font-family: 'DM Serif Display', serif;
       font-style: italic; font-size: 20px;
@@ -289,18 +374,16 @@
   <div id="cursor"></div>
 
   <!-- Sidebar -->
-
   <nav id="sidebar">
-    <div class="sidebar-logo">LM.</div>
+    <a href="/" class="sidebar-logo">LM.</a>
     <div class="nav-items">
-      <!-- Home -->
       <div class="nav-item active">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
           <polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
+        <span class="nav-label">Home</span>
       </div>
-      <!-- Members -->
       <div class="nav-item">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -308,124 +391,151 @@
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
           <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
         </svg>
+        <span class="nav-label">Members</span>
       </div>
-      <!-- Activity -->
       <div class="nav-item">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
         </svg>
+        <span class="nav-label">Activity</span>
       </div>
-      <!-- Settings -->
       <div class="nav-item">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/>
         </svg>
+        <span class="nav-label">Settings</span>
       </div>
     </div>
+    <button id="logout-btn">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span class="nav-label">Log Out</span>
+    </button>
   </nav>
 
   <!-- Topbar -->
-
   <header id="topbar">
     <span class="topbar-title">LifeClub Dashboard</span>
     <div class="topbar-right">
-      <div class="chip">
-        <div class="chip-dot"></div>
-        <span>NFT Verified</span>
-      </div>
+      <!-- Dark/light toggle -->
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <!-- Moon (shown in light mode) -->
+        <svg id="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <!-- Sun (shown in dark mode) -->
+        <svg id="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+      <!-- Wallet address chip -->
       <div class="chip" id="wallet-chip">
+        <div class="chip-dot"></div>
         <span id="wallet-short">—</span>
       </div>
     </div>
   </header>
 
   <!-- Main content -->
-
   <main id="main">
 
-```
-<div class="welcome" id="welcome">
-  <p class="welcome-eyebrow">Dashboard</p>
-  <h1 class="welcome-title">Welcome back,<br>Member.</h1>
-  <p class="welcome-sub">No hype. Just progress.</p>
-</div>
+    <div class="welcome" id="welcome">
+      <p class="welcome-eyebrow">Dashboard</p>
+      <h1 class="welcome-title">Welcome back,<br>Member.</h1>
+      <p class="welcome-sub">No hype. Just progress.</p>
+    </div>
 
-<div class="rule" id="rule"></div>
+    <div class="rule" id="rule"></div>
 
-<!-- Stats -->
-<div class="stats">
-  <div class="stat" id="s1">
-    <p class="stat-label">NFTs Held</p>
-    <p class="stat-value" id="count-1">0</p>
-    <p class="stat-sub">Verified on-chain</p>
-  </div>
-  <div class="stat" id="s2">
-    <p class="stat-label">Network</p>
-    <p class="stat-value" style="font-size:26px; padding-top:8px;">Sepolia</p>
-    <p class="stat-sub">Ethereum Testnet</p>
-  </div>
-  <div class="stat" id="s3">
-    <p class="stat-label">Access</p>
-    <p class="stat-value" style="font-size:26px; padding-top:8px;">Full</p>
-    <p class="stat-sub">All areas unlocked</p>
-  </div>
-</div>
-
-<!-- Row -->
-<div class="row">
-
-  <!-- Activity -->
-  <div class="panel" id="p1">
-    <p class="panel-label">Verification Log</p>
-    <div class="activity-item">
-      <div class="act-left">
-        <div class="act-dot"></div>
-        <span class="act-name">Wallet Connected</span>
+    <!-- Stats — 2 cols only -->
+    <div class="stats">
+      <div class="stat" id="s1">
+        <p class="stat-label">NFTs Held</p>
+        <p class="stat-value" id="count-1">0</p>
+        <p class="stat-sub">Verified on-chain</p>
       </div>
-      <span class="act-time">just now</span>
-      <span class="act-badge">Done</span>
-    </div>
-    <div class="activity-item">
-      <div class="act-left">
-        <div class="act-dot"></div>
-        <span class="act-name">Message Signed</span>
+      <div class="stat" id="s3">
+        <p class="stat-label">Access</p>
+        <p class="stat-value" style="font-size:26px; padding-top:8px;">Standard Member</p>
+        <p class="stat-sub">Standard areas unlocked</p>
       </div>
-      <span class="act-time">just now</span>
-      <span class="act-badge">Done</span>
     </div>
-    <div class="activity-item">
-      <div class="act-left">
-        <div class="act-dot"></div>
-        <span class="act-name">NFT Ownership Confirmed</span>
-      </div>
-      <span class="act-time">just now</span>
-      <span class="act-badge">Verified</span>
-    </div>
-    <div class="activity-item">
-      <div class="act-left">
-        <div class="act-dot"></div>
-        <span class="act-name">Access Granted</span>
-      </div>
-      <span class="act-time">just now</span>
-      <span class="act-badge">Active</span>
-    </div>
-  </div>
 
-  <!-- Token -->
-  <div class="panel" id="p2">
-    <p class="panel-label">Your Token</p>
-    <div class="token-body">
-      <div class="token-mark">LM.</div>
-      <p class="token-name">LifeClub NFT</p>
-      <p class="token-address">0xd614eEC2C666c412484cf3a31Ea3D8e57186624D</p>
-    </div>
-  </div>
+    <!-- Row -->
+    <div class="row">
 
-</div>
-```
+      <!-- Activity — compact -->
+      <div class="panel" id="p1">
+        <p class="panel-label">Verification Log</p>
+        <div class="activity-item">
+          <div class="act-left"><div class="act-dot"></div><span class="act-name">Wallet Connected</span></div>
+          <span class="act-time">just now</span>
+          <span class="act-badge">Done</span>
+        </div>
+        <div class="activity-item">
+          <div class="act-left"><div class="act-dot"></div><span class="act-name">Message Signed</span></div>
+          <span class="act-time">just now</span>
+          <span class="act-badge">Done</span>
+        </div>
+        <div class="activity-item">
+          <div class="act-left"><div class="act-dot"></div><span class="act-name">NFT Ownership Confirmed</span></div>
+          <span class="act-time">just now</span>
+          <span class="act-badge">Verified</span>
+        </div>
+        <div class="activity-item">
+          <div class="act-left"><div class="act-dot"></div><span class="act-name">Access Granted</span></div>
+          <span class="act-time">just now</span>
+          <span class="act-badge">Active</span>
+        </div>
+      </div>
+
+      <!-- Token -->
+      <div class="panel" id="p2">
+        <p class="panel-label">Your Token</p>
+        <div class="token-body">
+          <div class="token-mark-wrap" id="token-mark-wrap">
+            <div class="token-glow" id="token-glow"></div>
+            <div class="token-mark" id="token-mark">LM.</div>
+          </div>
+          <p class="token-name">LifeClub NFT</p>
+          <p class="token-address">0xd614eEC2C666c412484cf3a31Ea3D8e57186624D</p>
+        </div>
+      </div>
+
+    </div>
 
   </main>
+
+  <script>
+    /* ── Auth guard ── */
+    document.body.style.visibility = 'hidden';
+    (async () => {
+      const wallet = sessionStorage.getItem('verified_wallet');
+      if (!wallet) { window.location.replace('/'); return; }
+      try {
+        const res  = await fetch('http://localhost:3000/verify-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ walletAddress: wallet })
+        });
+        const data = await res.json();
+        if (!data.authorized) { window.location.replace('/'); return; }
+      } catch (e) { window.location.replace('/'); return; }
+      document.body.style.visibility = '';
+    })();
+  </script>
 
   <script>
     /* ── Cursor ── */
@@ -433,31 +543,54 @@
     document.addEventListener('mousemove', e => {
       gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: .1, ease: 'power2.out' });
     });
-    document.querySelectorAll('.nav-item, .chip').forEach(el => {
+    document.querySelectorAll('.nav-item, .chip, #theme-toggle, #logout-btn, .sidebar-logo').forEach(el => {
       el.addEventListener('mouseenter', () => gsap.to(cursor, { width: 28, height: 28, duration: .2 }));
       el.addEventListener('mouseleave', () => gsap.to(cursor, { width: 10, height: 10, duration: .2 }));
     });
 
-    /* ── Wallet ── */
+    /* ── Sidebar expand on hover ── */
+    const sidebar = document.getElementById('sidebar');
+    const labels  = sidebar.querySelectorAll('.nav-label');
+
+    sidebar.addEventListener('mouseenter', () => {
+      gsap.to(sidebar, { width: 180, duration: .35, ease: 'power3.out' });
+      gsap.to(labels,  { opacity: 1, duration: .25, delay: .1, stagger: .04 });
+    });
+    sidebar.addEventListener('mouseleave', () => {
+      gsap.to(labels,  { opacity: 0, duration: .15, stagger: .03 });
+      gsap.to(sidebar, { width: 68,  duration: .3,  ease: 'power3.inOut', delay: .05 });
+    });
+
+    /* ── Logout ── */
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      sessionStorage.removeItem('verified_wallet');
+      window.location.replace('/');
+    });
+
+    /* ── Theme toggle ── */
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+    });
+
+    /* ── Wallet — show full address ── */
     const params = new URLSearchParams(window.location.search);
     const wallet = params.get('wallet') || sessionStorage.getItem('verified_wallet') || '';
     if (wallet) {
       document.getElementById('wallet-short').textContent =
-        wallet.slice(0,6) + '...' + wallet.slice(-4);
+        wallet.slice(0, 6) + '...' + wallet.slice(-4);
     }
 
     /* ── Entrance ── */
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
     tl
-      .to('#sidebar',  { opacity: 1, duration: .7 }, 0.1)
-      .to('#topbar',   { opacity: 1, duration: .6 }, 0.3)
-      .to('#welcome',  { opacity: 1, y: 0, duration: .85 }, 0.55)
-      .to('#rule',     { width: 260, duration: .9, ease: 'power2.inOut' }, 1.0)
-      .to('#s1',       { opacity: 1, y: 0, duration: .55 }, 1.2)
-      .to('#s2',       { opacity: 1, y: 0, duration: .55 }, 1.35)
-      .to('#s3',       { opacity: 1, y: 0, duration: .55 }, 1.5)
-      .to('#p1',       { opacity: 1, y: 0, duration: .6 }, 1.65)
-      .to('#p2',       { opacity: 1, y: 0, duration: .6 }, 1.8)
+      .to('#sidebar', { opacity: 1, duration: .7 }, 0.1)
+      .to('#topbar',  { opacity: 1, duration: .6 }, 0.3)
+      .to('#welcome', { opacity: 1, y: 0, duration: .85 }, 0.55)
+      .to('#rule',    { width: 260, duration: .9, ease: 'power2.inOut' }, 1.0)
+      .to('#s1',      { opacity: 1, y: 0, duration: .55 }, 1.2)
+      .to('#s3',      { opacity: 1, y: 0, duration: .55 }, 1.35)
+      .to('#p1',      { opacity: 1, y: 0, duration: .6 }, 1.5)
+      .to('#p2',      { opacity: 1, y: 0, duration: .6 }, 1.65)
       .call(() => {
         /* Counter */
         gsap.to({ v: 0 }, {
@@ -466,11 +599,85 @@
             document.getElementById('count-1').textContent = Math.round(this.targets()[0].v);
           }
         });
-        /* Token mark breathe */
-        gsap.to('.token-mark', {
+        /* Token mark idle breathe */
+        gsap.to('#token-mark', {
           opacity: .14, duration: 2.5, repeat: -1, yoyo: true, ease: 'sine.inOut'
         });
       });
+
+    /* ── Token mark GSAP hover ── */
+    const wrap = document.getElementById('token-mark-wrap');
+    const mark = document.getElementById('token-mark');
+    const glow = document.getElementById('token-glow');
+
+    // Idle breathe tween reference so we can pause/resume
+    let breatheTween;
+
+    wrap.addEventListener('mouseenter', () => {
+      // Kill idle breathe
+      gsap.killTweensOf('#token-mark');
+
+      // 1. Slam opacity up + scale pop
+      gsap.to(mark, {
+        opacity: 1,
+        scale: 1.18,
+        letterSpacing: '0.06em',
+        duration: .35,
+        ease: 'back.out(2)'
+      });
+
+      // 2. Glow burst in
+      gsap.to(glow, {
+        opacity: 1,
+        scale: 1.3,
+        duration: .4,
+        ease: 'power2.out'
+      });
+
+      // 3. Continuous slow rotation on the glow
+      gsap.to(glow, {
+        rotation: 360,
+        duration: 4,
+        repeat: -1,
+        ease: 'none'
+      });
+
+      // 4. Magnetic cursor-follow on the mark
+      wrap.addEventListener('mousemove', onMagnet);
+    });
+
+    wrap.addEventListener('mouseleave', () => {
+      wrap.removeEventListener('mousemove', onMagnet);
+
+      // Snap mark back
+      gsap.to(mark, {
+        opacity: .08,
+        scale: 1,
+        letterSpacing: '-0.025em',
+        x: 0, y: 0,
+        duration: .5,
+        ease: 'elastic.out(1, 0.5)',
+        onComplete: () => {
+          // Restart idle breathe
+          gsap.to(mark, {
+            opacity: .14, duration: 2.5, repeat: -1, yoyo: true, ease: 'sine.inOut'
+          });
+        }
+      });
+
+      // Glow fade out + stop rotation
+      gsap.killTweensOf(glow);
+      gsap.to(glow, { opacity: 0, scale: 1, rotation: 0, duration: .5, ease: 'power2.in' });
+    });
+
+    function onMagnet(e) {
+      const rect = wrap.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top  + rect.height / 2;
+      const dx = (e.clientX - cx) * 0.35;
+      const dy = (e.clientY - cy) * 0.35;
+      gsap.to(mark, { x: dx, y: dy, duration: .25, ease: 'power2.out' });
+    }
   </script>
 
 </body>
