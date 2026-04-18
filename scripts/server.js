@@ -1,25 +1,30 @@
 require('dotenv').config();
 const express = require('express');
-const { ethers } = require('ethers'); 
+const { ethers } = require('ethers');
+const path = require('path');
+const cors = require('cors');
+
 const app = express();
 
-// Local development, this is fine, but in production you should set up proper CORS policies
-const cors = require('cors');
+// Middleware first — always
 app.use(cors());
-
 app.use(express.json());
 
-// 1. Connection to the Blockchain
+// Static files + dashboard route
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/dashboard', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'))
+);
+
+// Blockchain setup
 const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
 const contractAddress = process.env.LEFTY_NFT_ADDR;
-const abi = [ "function balanceOf(address owner) view returns (uint256)" ];
+const abi = ["function balanceOf(address owner) view returns (uint256)"];
 const nftContract = new ethers.Contract(contractAddress, abi, provider);
 
-// 2. The exact message the frontend will ask the user to sign
 const SIGN_IN_MESSAGE = "Welcome to the Club! Please sign this message to verify your wallet ownership.";
 
 app.post('/verify-nft', async (req, res) => {
-  // We now expect both the address AND the cryptographic signature
   const { walletAddress, signature } = req.body;
 
   if (!walletAddress || !signature) {
@@ -27,19 +32,15 @@ app.post('/verify-nft', async (req, res) => {
   }
 
   try {
-    // 3. Verify the signature to prove ownership of the address
     const recoveredAddress = ethers.verifyMessage(SIGN_IN_MESSAGE, signature);
 
-    // If the recovered address doesn't match the claimed address, abort.
     if (recoveredAddress.toLowerCase() !== walletAddress.toLowerCase()) {
       return res.status(401).json({ authorized: false, message: "Invalid signature. Authentication failed." });
     }
 
-    // 4. Query the Smart Contract directly from the Server
     const balance = await nftContract.balanceOf(walletAddress);
-    
-    if (balance > 0n) { // Note: ethers v6 returns BigInts, so we use > 0n
-      // User owns the NFT and proved they own the wallet
+
+    if (balance > 0n) {
       res.status(200).json({ authorized: true, message: "Access Granted" });
     } else {
       res.status(403).json({ authorized: false, message: "No NFT found. Join the club first." });
