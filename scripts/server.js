@@ -11,9 +11,9 @@ app.use(cors());
 app.use(express.json());
 
 // Static files + dashboard route
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 app.get('/dashboard', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'))
+  res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'))
 );
 
 // Blockchain setup
