@@ -4,19 +4,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Members Only</title>
-
-  <!-- Fonts -->
+  <title>LM. — LifeClub</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Josefin+Sans:wght@100;300;400&display=swap" rel="stylesheet" />
-
-  <!-- GSAP -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-
-  <!-- Ethers v6 -->
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 
@@ -24,374 +18,308 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --black:   #080808;
-      --deep:    #0d0d0d;
-      --gold:    #c9a84c;
-      --gold-dim:#8a6e2f;
-      --white:   #f0ece4;
-      --muted:   #5a5650;
-      --err:     #c0392b;
+      --cream:   #F0ECE4;
+      --cream-d: #E4DFD5;
+      --ink:     #111111;
+      --ink-mid: #666666;
+      --ink-dim: #AAAAAA;
+      --red:     #B83232;
+      --grid-c:  rgba(0,0,0,0.06);
     }
 
     html, body {
       height: 100%;
-      background: var(--black);
-      color: var(--white);
-      font-family: 'Josefin Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
       overflow: hidden;
       cursor: none;
     }
 
-    /* ── Custom cursor ── */
+    /* ── Cursor ── */
     #cursor {
       position: fixed;
-      width: 8px; height: 8px;
+      width: 10px; height: 10px;
       border-radius: 50%;
-      background: var(--gold);
+      background: var(--ink);
       pointer-events: none;
       z-index: 9999;
       transform: translate(-50%, -50%);
-      mix-blend-mode: difference;
-      transition: transform .15s ease, width .25s ease, height .25s ease;
+      transition: width .22s ease, height .22s ease, background .2s, border-radius .2s;
     }
-    #cursor.expand { width: 40px; height: 40px; }
+    #cursor.expand {
+      width: 34px; height: 34px;
+      background: transparent;
+      border: 1.5px solid var(--ink);
+    }
 
-    /* ── Noise grain overlay ── */
+    /* ── Grid paper ── */
     body::before {
       content: '';
       position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-image:
+        linear-gradient(var(--grid-c) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-c) 1px, transparent 1px);
+      background-size: 30px 30px;
       pointer-events: none;
-      z-index: 1000;
-      opacity: .6;
+      z-index: 0;
     }
-
-    /* ── Decorative lines ── */
-    .line-h {
-      position: fixed;
-      left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
-      opacity: 0;
-    }
-    .line-h.top    { top: 48px; }
-    .line-h.bottom { bottom: 48px; }
-
-    .line-v {
-      position: fixed;
-      top: 0; bottom: 0;
-      width: 1px;
-      background: linear-gradient(180deg, transparent, var(--gold-dim), transparent);
-      opacity: 0;
-    }
-    .line-v.left  { left: 48px; }
-    .line-v.right { right: 48px; }
 
     /* ── Corner marks ── */
     .corner {
       position: fixed;
-      width: 16px; height: 16px;
+      width: 18px; height: 18px;
       opacity: 0;
     }
-    .corner::before, .corner::after {
-      content: '';
-      position: absolute;
-      background: var(--gold);
-    }
+    .corner::before, .corner::after { content: ''; position: absolute; background: var(--ink); opacity: .2; }
     .corner::before { width: 100%; height: 1px; top: 0; left: 0; }
     .corner::after  { width: 1px; height: 100%; top: 0; left: 0; }
-    .corner.tl { top: 44px; left: 44px; }
-    .corner.tr { top: 44px; right: 44px; transform: scaleX(-1); }
-    .corner.bl { bottom: 44px; left: 44px; transform: scaleY(-1); }
-    .corner.br { bottom: 44px; right: 44px; transform: scale(-1); }
+    .corner.tl { top: 36px; left: 36px; }
+    .corner.tr { top: 36px; right: 36px; transform: scaleX(-1); }
+    .corner.bl { bottom: 36px; left: 36px; transform: scaleY(-1); }
+    .corner.br { bottom: 36px; right: 36px; transform: scale(-1); }
 
-    /* ── Layout ── */
+    /* ── Network ── */
+    .network-badge {
+      position: fixed;
+      top: 38px; right: 38px;
+      display: flex; align-items: center; gap: 7px;
+      font-size: 9px; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--ink-dim);
+      opacity: 0;
+    }
+    .network-dot { width: 5px; height: 5px; border-radius: 50%; background: #3aaa68; box-shadow: 0 0 5px #3aaa68; }
+
+    /* ── Tagline ── */
+    .tagline {
+      position: fixed;
+      bottom: 38px; left: 38px;
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 12px;
+      color: var(--ink-dim);
+      opacity: 0;
+      letter-spacing: .01em;
+    }
+
+    /* ── Stage ── */
     #stage {
       position: relative;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      gap: 0;
-      z-index: 10;
+      text-align: center;
+      padding: 48px;
     }
 
-    /* ── Header mark ── */
-    .eyebrow {
-      font-family: 'Josefin Sans', sans-serif;
-      font-weight: 100;
-      font-size: 10px;
-      letter-spacing: .35em;
-      color: var(--gold);
-      text-transform: uppercase;
+    /* ── Logo ── */
+    .logo-wrap {
+      margin-bottom: 52px;
       opacity: 0;
-      margin-bottom: 28px;
+      transform: translateY(16px);
     }
-
-    /* ── Title ── */
-    .title-wrap {
-      overflow: hidden;
-      margin-bottom: 6px;
-    }
-    .title {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: clamp(52px, 8vw, 96px);
-      letter-spacing: .04em;
+    .logo {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: clamp(56px, 10vw, 100px);
+      letter-spacing: -.025em;
+      color: var(--ink);
       line-height: 1;
-      color: var(--white);
       display: block;
-      transform: translateY(110%);
     }
-
-    /* ── Subtitle ── */
-    .subtitle-wrap { overflow: hidden; margin-bottom: 56px; }
-    .subtitle {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic;
+    .logo-since {
       font-weight: 300;
-      font-size: clamp(16px, 2vw, 22px);
-      letter-spacing: .08em;
-      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .22em;
+      color: var(--ink-dim);
+      text-transform: lowercase;
+      margin-top: 8px;
       display: block;
-      transform: translateY(110%);
     }
 
-    /* ── Gold rule ── */
+    /* ── Rule ── */
     .rule {
       width: 0;
       height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      margin: 0 auto 48px;
+      background: var(--ink);
+      opacity: .15;
+      margin: 0 auto 40px;
+    }
+
+    /* ── Text ── */
+    .title-wrap  { overflow: hidden; margin-bottom: 10px; }
+    .title {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(26px, 4vw, 44px);
+      color: var(--ink);
+      display: block;
+      transform: translateY(110%);
+      letter-spacing: -.01em;
+    }
+
+    .subtitle-wrap { overflow: hidden; margin-bottom: 52px; }
+    .subtitle {
+      font-weight: 300;
+      font-size: 13px;
+      letter-spacing: .04em;
+      color: var(--ink-mid);
+      display: block;
+      transform: translateY(110%);
     }
 
     /* ── Button ── */
-    .btn-wrap {
-      position: relative;
-      opacity: 0;
-    }
+    .btn-wrap { opacity: 0; }
 
     .btn {
       position: relative;
       display: inline-flex;
       align-items: center;
-      gap: 14px;
-      padding: 16px 48px;
-      background: transparent;
-      border: 1px solid var(--gold-dim);
-      color: var(--gold);
-      font-family: 'Josefin Sans', sans-serif;
-      font-weight: 300;
+      gap: 12px;
+      padding: 15px 44px;
+      background: var(--ink);
+      border: none;
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
       font-size: 11px;
-      letter-spacing: .3em;
+      letter-spacing: .18em;
       text-transform: uppercase;
       cursor: none;
       outline: none;
-      transition: border-color .3s ease, color .3s ease;
       overflow: hidden;
     }
-
     .btn::before {
       content: '';
-      position: absolute;
-      inset: 0;
-      background: var(--gold);
+      position: absolute; inset: 0;
+      background: var(--cream-d);
       transform: translateX(-101%);
-      transition: transform .4s cubic-bezier(.77,0,.175,1);
+      transition: transform .42s cubic-bezier(.77,0,.175,1);
     }
-
-    .btn:hover { border-color: var(--gold); color: var(--black); }
+    .btn:hover { color: var(--ink); }
     .btn:hover::before { transform: translateX(0); }
+    .btn span, .btn svg { position: relative; z-index: 1; transition: color .3s; }
 
-    .btn span { position: relative; z-index: 1; }
-
-    /* Wallet icon */
-    .btn svg { position: relative; z-index: 1; transition: color .3s; }
-
-    /* ── Status panel ── */
+    /* ── Status ── */
     #status-panel {
       position: fixed;
-      bottom: 64px;
-      left: 50%;
+      bottom: 38px; left: 50%;
       transform: translateX(-50%);
       text-align: center;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 20;
+      opacity: 0; pointer-events: none; z-index: 20;
     }
-
-    .status-line {
-      font-size: 10px;
-      letter-spacing: .25em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .status-address {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 13px;
-      letter-spacing: .1em;
-      color: var(--gold-dim);
-      margin-top: 4px;
-    }
+    .status-label   { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 3px; }
+    .status-address { font-size: 12px; color: var(--ink-mid); }
 
     /* ── Spinner ── */
     #spinner {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      background: var(--black);
-      z-index: 500;
-      opacity: 0;
-      pointer-events: none;
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+      background: var(--cream);
+      z-index: 500; opacity: 0; pointer-events: none;
     }
-
     .ring {
-      width: 48px; height: 48px;
-      border: 1px solid var(--gold-dim);
-      border-top-color: var(--gold);
+      width: 40px; height: 40px;
+      border: 1.5px solid var(--ink-dim);
+      border-top-color: var(--ink);
       border-radius: 50%;
     }
+    .spinner-text { font-size: 10px; letter-spacing: .25em; text-transform: uppercase; color: var(--ink-mid); }
 
-    .spinner-text {
-      font-size: 10px;
-      letter-spacing: .3em;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-
-    /* ── Result overlay ── */
+    /* ── Result ── */
     #result-overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      background: var(--black);
-      z-index: 600;
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px;
+      background: var(--cream);
+      z-index: 600; opacity: 0; pointer-events: none;
+    }
+    /* grid stays behind */
+    #result-overlay::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--grid-c) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-c) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    #result-overlay > * { position: relative; z-index: 1; }
+
+    .result-logo {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 40px;
+      letter-spacing: -.02em;
+      color: var(--ink);
       opacity: 0;
-      pointer-events: none;
     }
-
-    .result-icon {
-      font-size: 32px;
-      line-height: 1;
-    }
-
     .result-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: clamp(36px, 6vw, 64px);
-      letter-spacing: .06em;
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: clamp(30px, 5vw, 52px);
+      font-weight: 400;
+      letter-spacing: -.01em;
     }
-    .result-title.success { color: var(--gold); }
-    .result-title.error   { color: var(--err); }
+    .result-title.success { color: var(--ink); }
+    .result-title.error   { color: var(--red); }
+    .result-msg { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-dim); }
 
-    .result-msg {
-      font-size: 10px;
-      letter-spacing: .25em;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-
-    /* ── Network badge ── */
-    .network-badge {
-      position: fixed;
-      top: 64px;
-      right: 64px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 9px;
-      letter-spacing: .25em;
-      text-transform: uppercase;
-      color: var(--muted);
-      opacity: 0;
-    }
-    .network-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: #27ae60;
-      box-shadow: 0 0 6px #27ae60;
-    }
-
-    /* ── Ambient glow ── */
-    .glow {
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      filter: blur(120px);
-      opacity: 0;
-    }
-    .glow-1 {
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(201,168,76,.06) 0%, transparent 70%);
-      top: -100px; left: -100px;
-    }
-    .glow-2 {
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(201,168,76,.04) 0%, transparent 70%);
-      bottom: -80px; right: -80px;
+    /* ── Flash ── */
+    .flash-err {
+      position: fixed; bottom: 90px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--red); z-index: 800;
     }
   </style>
 
 </head>
 <body>
 
-  <!-- Cursor -->
-
   <div id="cursor"></div>
 
-  <!-- Ambient glows -->
-
-  <div class="glow glow-1"></div>
-  <div class="glow glow-2"></div>
-
-  <!-- Decorative frame -->
-
-  <div class="line-h top"></div>
-  <div class="line-h bottom"></div>
-  <div class="line-v left"></div>
-  <div class="line-v right"></div>
   <div class="corner tl"></div>
   <div class="corner tr"></div>
   <div class="corner bl"></div>
   <div class="corner br"></div>
 
-  <!-- Network badge -->
-
-  <div class="network-badge" id="network-badge">
+  <div class="network-badge">
     <div class="network-dot"></div>
     <span>Ethereum Sepolia</span>
   </div>
 
-  <!-- Main stage -->
+  <p class="tagline" id="tagline">Doing life together — for real.</p>
 
   <main id="stage">
-    <p class="eyebrow">Private Access</p>
 
 ```
-<div class="title-wrap">
-  <span class="title" id="title-line">Members Only</span>
-</div>
-
-<div class="subtitle-wrap">
-  <span class="subtitle" id="subtitle-line">Verify your token. Enter the club.</span>
+<div class="logo-wrap" id="logo-wrap">
+  <span class="logo">LM.</span>
+  <span class="logo-since">since 2024</span>
 </div>
 
 <div class="rule" id="rule"></div>
 
+<div class="title-wrap">
+  <span class="title" id="title-line">Members Only.</span>
+</div>
+<div class="subtitle-wrap">
+  <span class="subtitle" id="subtitle-line">Verify your NFT to enter the LifeClub community.</span>
+</div>
+
 <div class="btn-wrap" id="btn-wrap">
-  <button class="btn" id="connect-btn" onmouseenter="expandCursor()" onmouseleave="shrinkCursor()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+  <button class="btn" id="connect-btn"
+    onmouseenter="expandCursor()" onmouseleave="shrinkCursor()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2"/>
+      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
     </svg>
     <span>Connect Wallet</span>
   </button>
@@ -400,24 +328,18 @@
 
   </main>
 
-  <!-- Status (address display) -->
-
   <div id="status-panel">
-    <p class="status-line">Connected Wallet</p>
+    <p class="status-label">Connected</p>
     <p class="status-address" id="wallet-address-display">—</p>
   </div>
 
-  <!-- Spinner -->
-
   <div id="spinner">
     <div class="ring" id="ring"></div>
-    <p class="spinner-text" id="spinner-text">Verifying Access</p>
+    <p class="spinner-text" id="spinner-text">Verifying</p>
   </div>
 
-  <!-- Result overlay -->
-
   <div id="result-overlay">
-    <div class="result-icon" id="result-icon"></div>
+    <span class="result-logo" id="result-logo">LM.</span>
     <h2 class="result-title" id="result-title"></h2>
     <p class="result-msg" id="result-msg"></p>
   </div>
@@ -426,87 +348,65 @@
     /* ── Cursor ── */
     const cursor = document.getElementById('cursor');
     document.addEventListener('mousemove', e => {
-      gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: .12, ease: 'power2.out' });
+      gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: .1, ease: 'power2.out' });
     });
     function expandCursor()  { cursor.classList.add('expand'); }
     function shrinkCursor()  { cursor.classList.remove('expand'); }
 
-    /* ── Entrance animation ── */
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-    tl
-      .to('.glow',            { opacity: 1, duration: 2, stagger: .3 }, 0)
-      .to('.line-h',          { opacity: 1, duration: 1.4, stagger: .15 }, 0.3)
-      .to('.line-v',          { opacity: 1, duration: 1.4, stagger: .15 }, 0.5)
-      .to('.corner',          { opacity: 1, duration: .8, stagger: .1 }, 0.7)
-      .to('#network-badge',   { opacity: 1, duration: .8 }, 0.9)
-      .to('.eyebrow',         { opacity: 1, y: 0, duration: .8 }, 1.0)
-      .to('#title-line',      { y: '0%', duration: 1.1, ease: 'power4.out' }, 1.1)
-      .to('#subtitle-line',   { y: '0%', duration: .9, ease: 'power3.out' }, 1.35)
-      .to('#rule',            { width: 220, duration: 1, ease: 'power2.inOut' }, 1.5)
-      .to('#btn-wrap',        { opacity: 1, duration: .7 }, 1.8);
+    /* ── Entrance timeline ── */
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+      .to('.corner',        { opacity: 1, duration: .7, stagger: .08 }, 0.1)
+      .to('.network-badge', { opacity: 1, duration: .6 }, 0.4)
+      .to('#logo-wrap',     { opacity: 1, y: 0, duration: 1, ease: 'power4.out' }, 0.5)
+      .to('#rule',          { width: 140, duration: .9, ease: 'power2.inOut' }, 1.05)
+      .to('#title-line',    { y: '0%', duration: .85, ease: 'power4.out' }, 1.2)
+      .to('#subtitle-line', { y: '0%', duration: .75, ease: 'power3.out' }, 1.42)
+      .to('#btn-wrap',      { opacity: 1, duration: .6 }, 1.68)
+      .to('#tagline',       { opacity: 1, duration: .8 }, 1.9);
 
     /* ── Spin ring ── */
-    gsap.to('#ring', { rotation: 360, duration: 1.2, repeat: -1, ease: 'none' });
+    gsap.to('#ring', { rotation: 360, duration: 1.1, repeat: -1, ease: 'none' });
 
-    /* ── State ── */
-    let walletAddress = null;
+    /* ── Verify flow ── */
     let isBusy = false;
-
     const SIGN_IN_MESSAGE = "Welcome to the Club! Please sign this message to verify your wallet ownership.";
     const SERVER_URL = "http://localhost:3000/verify-nft";
 
-    /* ── Connect & Verify ── */
     document.getElementById('connect-btn').addEventListener('click', async () => {
       if (isBusy) return;
-
-      if (!window.ethereum) {
-        flashError('No wallet detected. Install MetaMask.');
-        return;
-      }
-
+      if (!window.ethereum) { flashError('No wallet found. Install MetaMask.'); return; }
       isBusy = true;
       await connectAndVerify();
-      isBusy = false;
     });
 
     async function connectAndVerify() {
       try {
-        /* 1. Request accounts */
         showSpinner('Connecting Wallet');
         const provider = new ethers.BrowserProvider(window.ethereum);
         await provider.send('eth_requestAccounts', []);
         const signer = await provider.getSigner();
-        walletAddress = await signer.getAddress();
+        const walletAddress = await signer.getAddress();
 
-        /* Show address */
         document.getElementById('wallet-address-display').textContent =
-          walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
-        gsap.to('#status-panel', { opacity: 1, y: 0, duration: .5 });
+          walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
+        gsap.to('#status-panel', { opacity: 1, duration: .4 });
 
-        /* 2. Sign message */
-        showSpinner('Awaiting Signature');
+        showSpinner('Sign to Verify');
         const signature = await signer.signMessage(SIGN_IN_MESSAGE);
 
-        /* 3. Verify on server */
-        showSpinner('Verifying Access');
+        showSpinner('Checking Membership');
         const res  = await fetch(SERVER_URL, {
-          method:  'POST',
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ walletAddress, signature })
         });
         const data = await res.json();
 
-        if (data.authorized) {
-          showSuccess();
-        } else {
-          showDenied(data.message || 'Access denied.');
-        }
+        data.authorized ? showSuccess() : showDenied(data.message || 'No access.');
 
       } catch (err) {
         hideSpinner();
         isBusy = false;
-
         if (err.code === 4001 || err.code === 'ACTION_REJECTED') {
           flashError('Signature rejected.');
         } else {
@@ -516,79 +416,72 @@
       }
     }
 
-    /* ── Spinner helpers ── */
     function showSpinner(msg) {
       document.getElementById('spinner-text').textContent = msg;
-      gsap.to('#spinner', { opacity: 1, duration: .35, pointerEvents: 'all' });
+      gsap.to('#spinner', { opacity: 1, duration: .28, pointerEvents: 'all' });
     }
     function hideSpinner() {
-      gsap.to('#spinner', { opacity: 0, duration: .3, pointerEvents: 'none' });
+      gsap.to('#spinner', { opacity: 0, duration: .22, pointerEvents: 'none' });
     }
 
-    /* ── Access granted ── */
     function showSuccess() {
       hideSpinner();
-
-      const overlay = document.getElementById('result-overlay');
-      document.getElementById('result-icon').textContent  = '◈';
-      document.getElementById('result-title').textContent = 'Access Granted';
+      const o = document.getElementById('result-overlay');
+      document.getElementById('result-title').textContent = 'Welcome in.';
       document.getElementById('result-title').className   = 'result-title success';
-      document.getElementById('result-msg').textContent   = 'Redirecting to dashboard';
+      document.getElementById('result-msg').textContent   = 'Redirecting to your dashboard';
 
-      const tl = gsap.timeline();
-      tl.to(overlay, { opacity: 1, duration: .6, pointerEvents: 'all' })
-        .to('#result-icon',  { scale: 1.15, duration: .4, yoyo: true, repeat: 1, ease: 'power2.inOut' }, 0.2)
+      gsap.timeline()
+        .to(o,               { opacity: 1, duration: .5, pointerEvents: 'all' })
+        .fromTo('#result-logo',
+          { opacity: 0, scale: .9 },
+          { opacity: 1, scale: 1, duration: .55, ease: 'back.out(1.6)' }, 0.1)
+        .fromTo('#result-title',
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: .45 }, 0.35)
+        .fromTo('#result-msg',
+          { opacity: 0 },
+          { opacity: 1, duration: .4 }, 0.55)
         .call(() => {
           setTimeout(() => {
-            gsap.to(overlay, {
-              opacity: 0, duration: .6, onComplete: () => {
-                window.location.href = '/dashboard';
-              }
+            gsap.to(o, { opacity: 0, duration: .55,
+              onComplete: () => { window.location.href = '/dashboard'; }
             });
           }, 1800);
         });
     }
 
-    /* ── Access denied ── */
     function showDenied(msg) {
       hideSpinner();
-
-      const overlay = document.getElementById('result-overlay');
-      document.getElementById('result-icon').textContent  = '◇';
-      document.getElementById('result-title').textContent = 'Access Denied';
+      const o = document.getElementById('result-overlay');
+      document.getElementById('result-logo').style.opacity = '0.18';
+      document.getElementById('result-title').textContent = 'Not a member.';
       document.getElementById('result-title').className   = 'result-title error';
       document.getElementById('result-msg').textContent   = msg;
 
-      const tl = gsap.timeline();
-      tl.to(overlay, { opacity: 1, duration: .5, pointerEvents: 'all' })
-        .to('#result-icon', { rotation: 45, duration: .3, ease: 'back.out' }, 0.2)
+      gsap.timeline()
+        .to(o, { opacity: 1, duration: .45, pointerEvents: 'all' })
         .call(() => {
           setTimeout(() => {
-            gsap.to(overlay, {
-              opacity: 0, duration: .5, pointerEvents: 'none', onComplete: () => {
+            gsap.to(o, { opacity: 0, duration: .45, pointerEvents: 'none',
+              onComplete: () => {
+                document.getElementById('result-logo').style.opacity = '';
                 isBusy = false;
               }
             });
-          }, 2400);
+          }, 2600);
         });
     }
 
-    /* ── Flash error (no overlay) ── */
     function flashError(msg) {
       const el = document.createElement('div');
+      el.className = 'flash-err';
       el.textContent = msg;
-      Object.assign(el.style, {
-        position: 'fixed', bottom: '100px', left: '50%',
-        transform: 'translateX(-50%)',
-        fontSize: '10px', letterSpacing: '.2em', textTransform: 'uppercase',
-        color: 'var(--err)', zIndex: 800,
-        fontFamily: "'Josefin Sans', sans-serif"
-      });
       document.body.appendChild(el);
-      gsap.fromTo(el, { opacity: 0, y: 8 }, {
-        opacity: 1, y: 0, duration: .4,
+      gsap.fromTo(el, { opacity: 0, y: 6 }, {
+        opacity: 1, y: 0, duration: .3,
         onComplete: () => {
-          gsap.to(el, { opacity: 0, delay: 2, duration: .5, onComplete: () => el.remove() });
+          gsap.to(el, { opacity: 0, delay: 2.2, duration: .4, onComplete: () => el.remove() });
         }
       });
     }
